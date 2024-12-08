@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib as mpl
 import json
 import os
-import matplotlib.dates as mdates
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 
 
@@ -28,49 +29,46 @@ def load_json(filename):
         json_file = json.load(file)
     return json_file
 
-def draw_rectangle(ax, x0, y0, width, height, edge_size):
-    p = plt.Rectangle((x0, y0), width, height, ec='k', lw=edge_size)
-    ax.add_patch(p)
-
 
 TEXT_PADDING = 5
 EDGESIZE = 2
-ROW_HEIGHT_INCH = 2
-FIG_DPI = 100 # pixels per inch
-FIG_PPI = 50 # points per inch
+ROW_HEIGHT_INCH = 3
+ROW_PADDING = .5
 
-edge_outer_size_inch = EDGESIZE/FIG_PPI
-# Pas exactement ça...... 
-edge_outer_size_data_units = (0, edge_outer_size_inch/ROW_HEIGHT_INCH)
-
-diagram_data = load_json('test-file.json')
+diagram_data = load_json('test-file.json')['chronological_sankey_data']
 (min_row, max_row) = get_rows_boundaries(diagram_data)
-
-fig, ax = plt.subplots(figsize=(8, (max_row - min_row)*ROW_HEIGHT_INCH), dpi=FIG_DPI)
-
-for i, item in enumerate(diagram_data):
-    start = mdates.date2num(datetime.fromisoformat(item['date-begin']))
-    end = mdates.date2num(datetime.fromisoformat(item['date-end']))
-    draw_rectangle(ax, start, -item['row'], end-start, 1, EDGESIZE)
-    ax.text(start + TEXT_PADDING, -item['row']+.5, item['name'], verticalalignment='center_baseline', fontsize=15)
-
 (min_date, max_date) = get_dates_boundaries(diagram_data)
-ax.set_xlim([mdates.date2num(datetime.fromisoformat(min_date))-abs(edge_outer_size_data_units[0]),
-             mdates.date2num(datetime.fromisoformat(max_date))+abs(edge_outer_size_data_units[0])])
 
-ax.set_ylim([-max_row-abs(edge_outer_size_data_units[1]),
-             1-min_row+abs(edge_outer_size_data_units[1])])
+with mpl.rc_context({
+    'xtick.minor.size': 2,
+    'xtick.major.size': 12}):
 
-ax.xaxis.set_minor_locator(mdates.MonthLocator())
-ax.xaxis.set_major_locator(mdates.YearLocator())
-ax.xaxis.set_minor_formatter(mdates.DateFormatter('%b'))
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+    fig, ax = plt.subplots(figsize=(12, (max_row - min_row)*ROW_HEIGHT_INCH))
 
-ax.get_yaxis().set_visible(False)
+    for i, item in enumerate(diagram_data):
+        start = mdates.date2num(datetime.fromisoformat(item['date-begin']))
+        end = mdates.date2num(datetime.fromisoformat(item['date-end']))
+        ax.add_patch(plt.Rectangle((start, -item['row']), end-start, 1, lw=EDGESIZE, ec='k', label=item['group']))
+        ax.text(start + TEXT_PADDING, -item['row']+.5, item['name'], verticalalignment='center_baseline', fontsize=15)
 
-ax.spines.left.set_visible(False)
-ax.spines.right.set_visible(False)
+    ax.set_xlim([mdates.date2num(datetime.fromisoformat(min_date)),
+                mdates.date2num(datetime.fromisoformat(max_date))])
 
-ax.grid(True)
+    ax.set_ylim([-max_row-ROW_PADDING,
+                1-min_row+ROW_PADDING])
 
-plt.show()
+    ax.xaxis.set_minor_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_locator(mdates.YearLocator())
+    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+
+    ax.get_yaxis().set_visible(False)
+
+    ax.spines.left.set_visible(False)
+    ax.spines.right.set_visible(False)
+
+    ax.grid(True)
+
+    ax.legend()
+
+    plt.show()
