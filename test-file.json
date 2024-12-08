@@ -4,35 +4,44 @@
     "chronological_sankey_data": [
         {
             "name": "First-element",
-            "childs": ["Third-element"],
-            "date-begin": "2025-01-01",
-            "date-end": "2025-08-31",
+            "childs": ["Second-element", "Third-element"],
             "row": 1,
-            "group": "a"
+            "groups": [
+                {
+                    "name": "a",
+                    "date-begin": "2025-01-01",
+                    "date-end": "2025-08-31"
+                },
+                {
+                    "name": "b",
+                    "date-begin": "2025-12-01",
+                    "date-end": "2026-04-30"
+                }
+            ]
         },
         {
             "name": "Second-element",
-            "childs": ["Third-element"],
-            "date-begin": "2025-12-01",
-            "date-end": "2026-04-30",
+            "childs": [],
             "row": 1,
-            "group": "b"
+            "groups": [
+                {
+                    "name": "a",
+                    "date-begin": "2027-06-01",
+                    "date-end": "2027-11-30"
+                }
+            ]
         },
         {
             "name": "Third-element",
             "childs": [],
-            "date-begin": "2027-06-01",
-            "date-end": "2027-11-30",
-            "row": 1,
-            "group": "a"
-        },
-        {
-            "name": "Fourth-element",
-            "childs": [],
-            "date-begin": "2027-06-01",
-            "date-end": "2027-11-30",
             "row": 2,
-            "group": "b"
+            "groups": [
+                {
+                    "name": "b",
+                    "date-begin": "2027-06-01",
+                    "date-end": "2027-11-30"
+                }
+            ]
         }
     ]
 }
